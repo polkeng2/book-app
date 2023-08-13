@@ -3,7 +3,7 @@ import { google } from "googleapis";
 import { NextApiRequest } from "next";
 import { revalidatePath } from "next/cache";
 
-export async function GET(req: Request) {
+/* export async function GET(req: Request) {
   function mapValuesToObj(values: string[]): Record<string, string> {
   return {
     titol: values[0],
@@ -37,7 +37,7 @@ export async function GET(req: Request) {
   } catch (error) {
     return NextResponse.error();
   }
-}
+} */
 
 export async function POST(req: Request) {
   const body = await req.json();
