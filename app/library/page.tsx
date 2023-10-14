@@ -1,7 +1,6 @@
-import React from "react";
-import BookManager from "./tableComponents/book-manager";
-import { notFound } from "next/navigation";
 import { google } from "googleapis";
+import { notFound } from "next/navigation";
+import BookManager from "./tableComponents/book-manager";
 
 const getData = async () => {
   function mapValuesToObj(values: string[]): Record<string, string> {
@@ -45,7 +44,7 @@ export default async function Library() {
   if (!data) return notFound();
 
   return (
-    <div className="h-[100dvh] bg-gradient-to-r from-blue-500 to-blue-300 flex flex-col justify-center items-center">
+    <div className="h-screen flex flex-col justify-center items-center">
       <BookManager books={data} />
     </div>
   );

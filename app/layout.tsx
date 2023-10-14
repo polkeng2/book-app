@@ -1,7 +1,7 @@
-import { Toaster } from "@/components/ui/toaster";
-import "./globals.css";
-import { Inter } from "next/font/google";
 import Providers from "@/components/providers";
+import { Toaster } from "@/components/ui/toaster";
+import { Inter } from "next/font/google";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 

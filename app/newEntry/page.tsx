@@ -1,8 +1,5 @@
 "use client";
 
-import React from "react";
-import { Book } from "../library/tableComponents/columns";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,17 +11,20 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import * as z from "zod";
-import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
-import axios from "axios";
-import { revalidatePath } from "next/cache";
 import { useToast } from "@/components/ui/use-toast";
-import { useMutation } from "@tanstack/react-query";
-import { BarLoader } from "react-spinners";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { BarLoader } from "react-spinners";
+import * as z from "zod";
 
 const CreateBookForm = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
   const { toast } = useToast();
   const bookSchema = z.object({
     titol: z
@@ -32,13 +32,15 @@ const CreateBookForm = () => {
         required_error: "El camp és obligatori",
         invalid_type_error: "El camp ha de ser un text.",
       })
-      .max(50, { message: "El camp no pot excedit els 50 caràcters." }),
+      .max(100, { message: "El camp no pot excedit els 50 caràcters." })
+      .nonempty({ message: "El camp no pot estar buit." }),
     autor: z
       .string({
         required_error: "El camp és obligatori",
         invalid_type_error: "El camp ha de ser un text.",
       })
-      .max(50, { message: "El camp no pot excedit els 50 caràcters." }),
+      .max(50, { message: "El camp no pot excedit els 50 caràcters." })
+      .nonempty({ message: "El camp no pot estar buit." }),
     prestatge: z
       .string({
         required_error: "El camp és obligatori",
@@ -46,7 +48,8 @@ const CreateBookForm = () => {
       .regex(new RegExp("^[0-9]*$"), {
         message: "El camp només pot contenir números",
       })
-      .max(2, { message: "El número es massa llarg." }),
+      .max(2, { message: "El número es massa llarg." })
+      .nonempty({ message: "El camp no pot estar buit." }),
     posicio: z
       .string({
         required_error: "El camp és obligatori",
@@ -54,31 +57,36 @@ const CreateBookForm = () => {
       .regex(new RegExp("^[0-9]*$"), {
         message: "El camp només pot contenir números",
       })
-      .max(2, { message: "El número es massa llarg." }),
+      .max(2, { message: "El número es massa llarg." })
+      .nonempty({ message: "El camp no pot estar buit." }),
     habitacio: z
       .string({
         required_error: "El camp és obligatori",
         invalid_type_error: "El camp ha de ser un text.",
       })
-      .max(20, { message: "El camp no pot excedit els 20 caràcters." }),
+      .max(50, { message: "El camp no pot excedit els 20 caràcters." })
+      .nonempty({ message: "El camp no pot estar buit." }),
     tipus: z
       .string({
         required_error: "El camp és obligatori",
         invalid_type_error: "El camp ha de ser un text.",
       })
-      .max(50, { message: "El camp no pot excedit els 50 caràcters." }),
+      .max(50, { message: "El camp no pot excedit els 50 caràcters." })
+      .nonempty({ message: "El camp no pot estar buit." }),
     editorial: z
       .string({
         required_error: "El camp és obligatori",
         invalid_type_error: "El camp ha de ser un text.",
       })
-      .max(50, { message: "El camp no pot excedit els 50 caràcters." }),
+      .max(50, { message: "El camp no pot excedit els 50 caràcters." })
+      .nonempty({ message: "El camp no pot estar buit." }),
     idioma: z
       .string({
         required_error: "El camp és obligatori",
         invalid_type_error: "El camp ha de ser un text.",
       })
-      .max(50, { message: "El camp no pot excedit els 50 caràcters." }),
+      .max(50, { message: "El camp no pot excedit els 50 caràcters." })
+      .nonempty({ message: "El camp no pot estar buit." }),
     notes: z
       .string()
       .max(100, { message: "El camp no pot excedir els 100 caràcters." }),
@@ -103,9 +111,11 @@ const CreateBookForm = () => {
       await axios.post("/api/books", values);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getBooks"] });
       toast({
         title: "El llibre s'ha creat correctament.",
       });
+      router.push("/library");
     },
     onError: () => {
       toast({
@@ -122,20 +132,18 @@ const CreateBookForm = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-blue-500 to-blue-300">
-        <BarLoader color="#f9fcff" />
+      <div className="flex flex-col items-center justify-center h-screen ">
+        <BarLoader />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center py-12 bg-gradient-to-r from-blue-500 to-blue-300">
+    <div className="flex flex-col items-center justify-center py-12 ">
       {/* Put a button above everything else to go back to previous screen */}
-
       <Link className="mr-auto pl-16 pb-10" href="/library">
         <Button variant={"link"}>{"<- Torna a la biblioteca"}</Button>
       </Link>
-
       <h1 className="text-2xl font-bold text-gray-800 mb-5">
         Afegeix un nou llibre
       </h1>
@@ -286,7 +294,7 @@ const CreateBookForm = () => {
             )}
           />
 
-          <Button type="submit" variant={"submit"}>
+          <Button type="submit" variant={"outline"}>
             Submit
           </Button>
         </form>
