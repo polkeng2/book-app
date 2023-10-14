@@ -117,12 +117,13 @@ const CreateBookForm = () => {
       });
       router.push("/library");
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         variant: "destructive",
         title: "El llibre no s'ha pogut crear correctament.",
         description: "Hi ha hagut un error inesperat.",
       });
+      console.log(error);
     },
   });
 
