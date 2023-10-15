@@ -38,7 +38,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  /*   const body = await req.json();
   const auth = await google.auth.getClient({
     scopes: [
       "https://www.googleapis.com/auth/spreadsheets",
@@ -76,5 +76,6 @@ export async function POST(req: Request) {
     return NextResponse.json(response.data);
   } catch (error) {
     return NextResponse.error();
-  }
+  } */
+  return NextResponse.json("Hello world");
 }

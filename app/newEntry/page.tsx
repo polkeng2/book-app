@@ -108,7 +108,8 @@ const CreateBookForm = () => {
 
   const { mutate, isLoading } = useMutation({
     mutationFn: async (values: z.infer<typeof bookSchema>) => {
-      await axios.post("/api/books", values);
+      const value = await axios.post("/api/books", values);
+      console.log("is the endpoint working? ", value);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["getBooks"] });
