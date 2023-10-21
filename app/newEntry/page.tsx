@@ -111,7 +111,7 @@ const CreateBookForm = () => {
       await axios.post("/api/books", values);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["getBooks"] });
+      queryClient.refetchQueries({ queryKey: ["getBooks"] });
       toast({
         title: "El llibre s'ha creat correctament.",
       });
