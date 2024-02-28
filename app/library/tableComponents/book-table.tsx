@@ -171,9 +171,7 @@ export function DataTable<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    className={`${
-                      index % 2 === 0 && "bg-gray-200 pointer-events-none"
-                    }`}
+                    className={`${index % 2 === 0 && "bg-gray-200"}`}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>

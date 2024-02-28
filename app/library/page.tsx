@@ -1,38 +1,12 @@
-import { google } from "googleapis";
+import axios from "axios";
 import { notFound } from "next/navigation";
 import BookManager from "./tableComponents/book-manager";
 
 const getData = async () => {
-  function mapValuesToObj(values: string[]): Record<string, string> {
-    return {
-      titol: values[0],
-      autor: values[1],
-      prestatge: values[2],
-      posicio: values[3],
-      habitacio: values[4],
-      tipus: values[5],
-      editorial: values[6],
-      idioma: values[7],
-      notes: values[8] || "",
-    };
-  }
-
   try {
-    const auth = await google.auth.getClient({
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-    });
-
-    const sheets = google.sheets({
-      auth,
-      version: "v4",
-    });
-
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: "A:I",
-    });
-    const books = response?.data?.values?.slice(1)?.map(mapValuesToObj);
-    return books;
+    const API = "http://178.33.35.235:8000";
+    const response = await axios.get(`${API}/books`);
+    return response.data;
   } catch (error) {
     console.log(error);
   }

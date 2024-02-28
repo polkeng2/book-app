@@ -1,8 +1,10 @@
-"use client"
+"use client";
 
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef } from "@tanstack/react-table";
+import Link from "next/link";
 
 export type Book = {
+  id: number;
   titol: string;
   autor: string;
   prestatge: string;
@@ -12,7 +14,7 @@ export type Book = {
   editorial: string;
   idioma: string;
   notes: string;
-}
+};
 
 export const columns: ColumnDef<Book>[] = [
   {
@@ -20,12 +22,12 @@ export const columns: ColumnDef<Book>[] = [
       return (
         <button
           onClick={() => {
-            column.toggleSorting(column.getIsSorted() === "asc")
+            column.toggleSorting(column.getIsSorted() === "asc");
           }}
         >
           Títol
         </button>
-      )
+      );
     },
     accessorKey: "titol",
   },
@@ -37,7 +39,7 @@ export const columns: ColumnDef<Book>[] = [
         >
           Autor
         </button>
-      )
+      );
     },
     accessorKey: "autor",
   },
@@ -49,7 +51,7 @@ export const columns: ColumnDef<Book>[] = [
         >
           Prestatge
         </button>
-      )
+      );
     },
     accessorKey: "prestatge",
   },
@@ -61,7 +63,7 @@ export const columns: ColumnDef<Book>[] = [
         >
           Posició
         </button>
-      )
+      );
     },
     accessorKey: "posicio",
   },
@@ -73,7 +75,7 @@ export const columns: ColumnDef<Book>[] = [
         >
           Habitació
         </button>
-      )
+      );
     },
     accessorKey: "habitacio",
   },
@@ -85,7 +87,7 @@ export const columns: ColumnDef<Book>[] = [
         >
           Tipus
         </button>
-      )
+      );
     },
     accessorKey: "tipus",
   },
@@ -97,7 +99,7 @@ export const columns: ColumnDef<Book>[] = [
         >
           Editorial
         </button>
-      )
+      );
     },
     accessorKey: "editorial",
   },
@@ -109,7 +111,7 @@ export const columns: ColumnDef<Book>[] = [
         >
           Idioma
         </button>
-      )
+      );
     },
     accessorKey: "idioma",
   },
@@ -121,19 +123,19 @@ export const columns: ColumnDef<Book>[] = [
         >
           Notes
         </button>
-      )
+      );
     },
     accessorKey: "notes",
-  },  
-/*   {
+  },
+  {
     header: "Editar",
     cell: ({ row }) => (
-      <button
+      <Link
+        href={`/newEntry?id=${row.original.id}`}
         className="button button-primary"
-        onClick={() => alert(`Edit ${row.original.titol}`)}
       >
         Edit
-      </button>
+      </Link>
     ),
-  }, */
-]
+  },
+];

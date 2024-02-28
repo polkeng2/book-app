@@ -14,19 +14,21 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { BarLoader } from "react-spinners";
 import * as z from "zod";
+import useApi from "../hooks/useApi";
+import { Book } from "../library/tableComponents/columns";
 
 const CreateBookForm = () => {
-  const queryClient = useQueryClient();
   const router = useRouter();
   const { toast } = useToast();
   const bookSchema = z.object({
+    id: z.number(),
     titol: z
       .string({
         required_error: "El camp és obligatori",
@@ -91,9 +93,17 @@ const CreateBookForm = () => {
       .string()
       .max(100, { message: "El camp no pot excedir els 100 caràcters." }),
   });
+  const { getAllBooks, createBook, editBook, deleteBook } = useApi();
+  const { data: llibres, refetch } = useQuery({
+    queryKey: ["getBooks"],
+    queryFn: getAllBooks,
+    enabled: false,
+  });
   const form = useForm<z.infer<typeof bookSchema>>({
     resolver: zodResolver(bookSchema),
+    //TODO: Ficar al id el valor del param
     defaultValues: {
+      id: 0,
       titol: "",
       autor: "",
       prestatge: "",
@@ -106,30 +116,71 @@ const CreateBookForm = () => {
     },
   });
 
+  const id = useSearchParams().get("id");
   const { mutate, isLoading } = useMutation({
-    mutationFn: async (values: z.infer<typeof bookSchema>) => {
-      await axios.post("/api/books", values);
+    mutationFn: async (newBook: Book) => {
+      if (id) return await editBook(id, newBook);
+      return await createBook(newBook);
     },
     onSuccess: () => {
-      queryClient.refetchQueries({ queryKey: ["getBooks"] });
+      refetch();
       toast({
-        title: "El llibre s'ha creat correctament.",
+        title: "Els canvis s'han guardat correctament.",
       });
       router.push("/library");
     },
     onError: (error) => {
       toast({
         variant: "destructive",
-        title: "El llibre no s'ha pogut crear correctament.",
+        title: "Els canvis no s'han pogut desar",
         description: "Hi ha hagut un error inesperat.",
       });
       console.log(error);
     },
   });
 
-  async function onSubmit(values: z.infer<typeof bookSchema>) {
+  //delete mutation
+  const { mutate: deleteMutation } = useMutation({
+    mutationFn: async () => {
+      if (!id) return;
+      const bookId = parseInt(id);
+      const response = await deleteBook(bookId);
+      return response;
+    },
+    onSuccess: () => {
+      refetch();
+      toast({
+        title: "El llibre s'ha eliminat correctament.",
+      });
+      router.push("/library");
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "El llibre no s'ha pogut eliminar correctament.",
+        description: "Hi ha hagut un error inesperat.",
+      });
+    },
+  });
+
+  async function onSubmit(values: any) {
     mutate(values);
   }
+
+  useEffect(() => {
+    if (id) {
+      const book = llibres?.find((book: Book) => book.id === parseInt(id));
+      form.setValue("titol", book?.titol);
+      form.setValue("autor", book?.autor);
+      form.setValue("prestatge", book?.prestatge);
+      form.setValue("posicio", book?.posicio);
+      form.setValue("habitacio", book?.habitacio);
+      form.setValue("tipus", book?.tipus);
+      form.setValue("editorial", book?.editorial);
+      form.setValue("idioma", book?.idioma);
+      form.setValue("notes", book?.notes);
+    }
+  }, [llibres]);
 
   if (isLoading) {
     return (
@@ -141,12 +192,11 @@ const CreateBookForm = () => {
 
   return (
     <div className="flex flex-col items-center justify-center py-12 ">
-      {/* Put a button above everything else to go back to previous screen */}
       <Link className="mr-auto pl-16 pb-10" href="/library">
         <Button variant={"link"}>{"<- Torna a la biblioteca"}</Button>
       </Link>
       <h1 className="text-2xl font-bold text-gray-800 mb-5">
-        Afegeix un nou llibre
+        {id ? "Edita el llibre" : "Crea un nou llibre"}
       </h1>
       <Form {...form}>
         <form
@@ -294,10 +344,16 @@ const CreateBookForm = () => {
               </FormItem>
             )}
           />
-
-          <Button type="submit" variant={"outline"}>
-            Submit
-          </Button>
+          <div className="flex flex-row justify-between items-center">
+            {id && (
+              <Button variant={"outline"} onClick={() => deleteMutation()}>
+                Elimina
+              </Button>
+            )}
+            <Button type="submit" variant={"outline"}>
+              Guarda
+            </Button>
+          </div>
         </form>
       </Form>
     </div>
