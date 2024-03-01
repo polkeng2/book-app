@@ -128,7 +128,7 @@ export const columns: ColumnDef<Book>[] = [
     accessorKey: "notes",
   },
   {
-    header: "Editar",
+    header: "",
     cell: ({ row }) => (
       <Link
         href={`/newEntry?id=${row.original.id}`}
