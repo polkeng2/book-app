@@ -18,6 +18,7 @@ export type Book = {
 
 export const columns: ColumnDef<Book>[] = [
   {
+    id: "titol",
     header: ({ column }) => {
       return (
         <button
@@ -32,6 +33,7 @@ export const columns: ColumnDef<Book>[] = [
     accessorKey: "titol",
   },
   {
+    id: "autor",
     header: ({ column }) => {
       return (
         <button
@@ -44,6 +46,7 @@ export const columns: ColumnDef<Book>[] = [
     accessorKey: "autor",
   },
   {
+    id: "prestatge",
     header: ({ column }) => {
       return (
         <button
@@ -56,6 +59,7 @@ export const columns: ColumnDef<Book>[] = [
     accessorKey: "prestatge",
   },
   {
+    id: "posicio",
     header: ({ column }) => {
       return (
         <button
@@ -68,6 +72,7 @@ export const columns: ColumnDef<Book>[] = [
     accessorKey: "posicio",
   },
   {
+    id: "habitacio",
     header: ({ column }) => {
       return (
         <button
@@ -80,6 +85,7 @@ export const columns: ColumnDef<Book>[] = [
     accessorKey: "habitacio",
   },
   {
+    id: "tipus",
     header: ({ column }) => {
       return (
         <button
@@ -92,6 +98,7 @@ export const columns: ColumnDef<Book>[] = [
     accessorKey: "tipus",
   },
   {
+    id: "editorial",
     header: ({ column }) => {
       return (
         <button
@@ -104,6 +111,7 @@ export const columns: ColumnDef<Book>[] = [
     accessorKey: "editorial",
   },
   {
+    id: "idioma",
     header: ({ column }) => {
       return (
         <button
@@ -116,6 +124,7 @@ export const columns: ColumnDef<Book>[] = [
     accessorKey: "idioma",
   },
   {
+    id: "notes",
     header: ({ column }) => {
       return (
         <button
@@ -128,6 +137,7 @@ export const columns: ColumnDef<Book>[] = [
     accessorKey: "notes",
   },
   {
+    id: "edit",
     header: "",
     cell: ({ row }) => (
       <Link
