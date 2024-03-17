@@ -14,7 +14,7 @@ interface Book {
 }
 
 function useApi() {
-  const API = "http://10.0.1.10:8000";
+  const API = "https://llibres-api.driescode.dev";
 
   const getAllBooks = async () => {
     const response = await axios.get(`${API}/books`);
