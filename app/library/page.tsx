@@ -4,7 +4,7 @@ import BookManager from "./tableComponents/book-manager";
 
 const getData = async () => {
   try {
-    const API = "http://178.33.35.235:8000";
+    const API = "http://10.0.1.10:8000";
     const response = await axios.get(`${API}/books`);
     return response.data;
   } catch (error) {

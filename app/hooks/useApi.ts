@@ -14,7 +14,7 @@ interface Book {
 }
 
 function useApi() {
-  const API = "http://178.33.35.235:8000";
+  const API = "http://10.0.1.10:8000";
 
   const getAllBooks = async () => {
     const response = await axios.get(`${API}/books`);
