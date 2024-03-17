@@ -12,12 +12,12 @@ export interface SearchParams {
 
 export default function BookManager(books: any) {
   const { getAllBooks } = useApi();
-  const { data: llibres } = useQuery({
+  const { data: llibres, refetch } = useQuery({
     queryKey: ["getBooks"],
     queryFn: getAllBooks,
     initialData: books.books,
     enabled: false,
   });
 
-  return <DataTable columns={columns} data={llibres} />;
+  return <DataTable columns={columns} data={llibres} refetch={refetch} />;
 }

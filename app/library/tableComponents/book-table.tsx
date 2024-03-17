@@ -37,6 +37,7 @@ import SearchParam from "./searchParam";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: any;
+  refetch: () => void;
 }
 
 const colInfo = [
@@ -54,6 +55,7 @@ const colInfo = [
 export function DataTable<TData, TValue>({
   columns,
   data,
+  refetch,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [openCollapsible, setOpenCollapsible] = React.useState<boolean>(false);
@@ -139,6 +141,9 @@ export function DataTable<TData, TValue>({
         <Link href="/newEntry" className="ml-auto">
           <Button variant="outline">Crea nou llibre</Button>
         </Link>
+        <Button className="px-5" onClick={refetch}>
+          Refresca
+        </Button>
       </div>
       <div className="flex justify-between">{tableFilter()}</div>
       <div className="rounded-md border border-slate-800 max-h-[60vh] overflow-auto">
