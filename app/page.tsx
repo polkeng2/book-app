@@ -16,7 +16,8 @@ export default function Home() {
         className="absolute top-0 left-0 z-[-1]"
         src="/library-bg.jpg"
         alt="Imatge de biblioteca"
-        fill={true}
+        fill
+        priority
       />
       <motion.div
         initial="hidden"
