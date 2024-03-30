@@ -1,15 +1,9 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export default function Home() {
-  const animationVariants = {
-    hidden: { opacity: 0, y: 50 }, // Start position
-    visible: { opacity: 1, y: 0, transition: { duration: 1 } }, // End position with transition
-  };
   return (
     <div className="h-[100dvh] flex flex-col justify-center items-center">
       <Image
@@ -19,21 +13,17 @@ export default function Home() {
         fill
         priority
       />
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={animationVariants}
-        className="flex flex-col justify-center items-center text-white drop-shadow-2xl"
-      >
+
+      <div className="flex flex-col justify-center items-center text-slate-100 font-medium drop-shadow-2xl animate-fade-in animate-delay-800 animate-duration-800">
         <h1 className="text-4xl lg:text-6xl text-bold pointer-events-none">
           Els teus llibres. Ara online.
         </h1>
         <Link href={"/library"}>
-          <Button variant={"landing"} className="mt-10 text-xl lg:text-3xl">
+          <Button className="mt-10 text-xl lg:text-3xl transition hover:scale-110">
             {"Ves a la biblioteca ->"}
           </Button>
         </Link>
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -31,6 +31,7 @@ export const columns: ColumnDef<Book>[] = [
       );
     },
     accessorKey: "titol",
+    cell: (info) => info.getValue(),
   },
   {
     id: "autor",
@@ -44,6 +45,7 @@ export const columns: ColumnDef<Book>[] = [
       );
     },
     accessorKey: "autor",
+    cell: (info) => info.getValue(),
   },
   {
     id: "prestatge",
@@ -57,6 +59,7 @@ export const columns: ColumnDef<Book>[] = [
       );
     },
     accessorKey: "prestatge",
+    cell: (info) => info.getValue(),
   },
   {
     id: "posicio",
@@ -70,6 +73,7 @@ export const columns: ColumnDef<Book>[] = [
       );
     },
     accessorKey: "posicio",
+    cell: (info) => info.getValue(),
   },
   {
     id: "habitacio",
@@ -83,6 +87,7 @@ export const columns: ColumnDef<Book>[] = [
       );
     },
     accessorKey: "habitacio",
+    cell: (info) => info.getValue(),
   },
   {
     id: "tipus",
@@ -96,6 +101,7 @@ export const columns: ColumnDef<Book>[] = [
       );
     },
     accessorKey: "tipus",
+    cell: (info) => info.getValue(),
   },
   {
     id: "editorial",
@@ -109,6 +115,7 @@ export const columns: ColumnDef<Book>[] = [
       );
     },
     accessorKey: "editorial",
+    cell: (info) => info.getValue(),
   },
   {
     id: "idioma",
@@ -122,6 +129,7 @@ export const columns: ColumnDef<Book>[] = [
       );
     },
     accessorKey: "idioma",
+    cell: (info) => info.getValue(),
   },
   {
     id: "notes",
@@ -135,6 +143,7 @@ export const columns: ColumnDef<Book>[] = [
       );
     },
     accessorKey: "notes",
+    cell: (info) => info.getValue(),
   },
   {
     id: "edit",

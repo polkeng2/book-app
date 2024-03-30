@@ -1,25 +1,11 @@
-import axios from "axios";
-import { notFound } from "next/navigation";
-import BookManager from "./tableComponents/book-manager";
+"use client";
 
-const getData = async () => {
-  try {
-    const API = "https://llibres-api.driescode.dev";
-    const response = await axios.get(`${API}/books`);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-};
+import { DataTable } from "./tableComponents/book-table";
 
-export default async function Library() {
-  const data = await getData();
-
-  if (!data) return notFound();
-
+export default function Library() {
   return (
     <div className="h-screen flex flex-col justify-center items-center">
-      <BookManager books={data} />
+      <DataTable />;
     </div>
   );
 }
