@@ -11,7 +11,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -192,7 +191,7 @@ export const BookForm = ({
     }
   }, [id]);
 
-  const labels = [
+  const labels: string[] = [
     "titol",
     "autor",
     "prestatge",
@@ -204,7 +203,7 @@ export const BookForm = ({
     "notes",
   ];
 
-  const names = [
+  const names: string[] = [
     "Títol",
     "Autor",
     "Prestatge",
