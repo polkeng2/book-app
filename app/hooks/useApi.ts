@@ -14,29 +14,52 @@ interface Book {
 }
 
 function useApi() {
-  const API = "https://llibres-api.driescode.dev";
+  const API = "http://localhost:8000";
 
   const getAllBooks = async () => {
     const response = await axios.get(`${API}/books`);
     return response.data;
   };
 
-  const createBook = async (book: any) => {
-    const response = await axios.post(`${API}/books`, book);
+  const createBook = async (book: any, cookie: String | undefined) => {
+    console.log("book: ", book);
+    const response = await axios.post(`${API}/books`, book, {
+      headers: {
+        Authorization: `${cookie}`,
+      },
+    });
     return response.data;
   };
 
-  const editBook = async (id: string, book: Book) => {
-    const response = await axios.put(`${API}/books/${id}`, book);
+  const editBook = async (
+    id: string,
+    book: Book,
+    cookie: String | undefined
+  ) => {
+    console.log("Edited book: ", book);
+    const response = await axios.put(`${API}/books/${id}`, book, {
+      headers: {
+        Authorization: `${cookie}`,
+      },
+    });
     return response.data;
   };
 
-  const deleteBook = async (id: number) => {
-    const response = await axios.delete(`${API}/books/${id}`);
+  const deleteBook = async (id: number, cookie: String | undefined) => {
+    const response = await axios.delete(`${API}/books/${id}`, {
+      headers: {
+        Authorization: `${cookie}`,
+      },
+    });
     return response.data;
   };
 
-  return { getAllBooks, createBook, editBook, deleteBook };
+  const getAuth = async (email: string, password: string) => {
+    const response = await axios.post(`${API}/login`, { email, password });
+    return response.data;
+  };
+
+  return { getAllBooks, createBook, editBook, deleteBook, getAuth };
 }
 
 export default useApi;

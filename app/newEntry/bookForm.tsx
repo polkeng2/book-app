@@ -22,15 +22,19 @@ import {
 } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { BarLoader } from "react-spinners";
 import * as z from "zod";
 import useApi from "../hooks/useApi";
 import { Book } from "../library/tableComponents/columns";
 import { useBookData } from "../hooks/useBookData";
+import { ArrowLeft } from "lucide-react";
 
-export const BookForm = () => {
+export const BookForm = ({
+  getToken,
+}: {
+  getToken: () => Promise<string | undefined>;
+}) => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { toast } = useToast();
@@ -122,15 +126,16 @@ export const BookForm = () => {
   const id = useSearchParams().get("id");
   const { mutate } = useMutation({
     mutationFn: async (newBook: Book) => {
-      if (id) return await editBook(id, newBook);
-      return await createBook(newBook);
+      const token = await getToken();
+      if (id) return await editBook(id, newBook, token);
+      return await createBook(newBook, token);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["getBooks"] });
       toast({
         title: "Els canvis s'han guardat correctament.",
       });
-      router.push("/library");
+      router.push("/");
     },
     onError: (error) => {
       toast({
@@ -146,8 +151,9 @@ export const BookForm = () => {
   const { mutate: deleteMutation } = useMutation({
     mutationFn: async () => {
       if (!id) return;
+      const token = await getToken();
       const bookId = parseInt(id);
-      const response = await deleteBook(bookId);
+      const response = await deleteBook(bookId, token);
       return response;
     },
     onSuccess: () => {
@@ -155,7 +161,7 @@ export const BookForm = () => {
       toast({
         title: "El llibre s'ha eliminat correctament.",
       });
-      router.push("/library");
+      router.push("/");
     },
     onError: (error) => {
       toast({
@@ -163,6 +169,7 @@ export const BookForm = () => {
         title: "El llibre no s'ha pogut eliminar correctament.",
         description: "Hi ha hagut un error inesperat.",
       });
+      throw error;
     },
   });
 
@@ -185,168 +192,89 @@ export const BookForm = () => {
     }
   }, [id]);
 
+  const labels = [
+    "titol",
+    "autor",
+    "prestatge",
+    "posicio",
+    "habitacio",
+    "tipus",
+    "editorial",
+    "idioma",
+    "notes",
+  ];
+
+  const names = [
+    "Títol",
+    "Autor",
+    "Prestatge",
+    "Posició",
+    "Habitació",
+    "Tipus",
+    "Editorial",
+    "Idioma",
+    "Notes",
+  ];
+
   return (
     <div className="flex flex-col items-center justify-center py-12 w-full">
-      <Link className="mr-auto pl-16 pb-10" href="/library">
-        <Button variant={"link"}>{"<- Torna a la biblioteca"}</Button>
+      <Link
+        className="mr-auto pl-16 pb-1 text-slate-300 hover:text-slate-50 flex items-center"
+        href="/"
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Torna a la biblioteca
       </Link>
-      <div className="bg-slate-100 border border-black px-4 py-6 w-[40%] flex flex-col justify-center items-center">
-        <h1 className="text-2xl font-bold text-gray-800 mb-5">
+      <div className="px-4 py-6 w-[40%] flex flex-col justify-center items-center bg-slate-800 border-0 rounded-lg shadow-lg">
+        <h1 className="text-2xl font-bold text-slate-300 mb-5">
           {id ? "Edita el llibre" : "Crea un nou llibre"}
         </h1>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-8 w-[80%]"
+            //TODO: Change width
           >
-            {/* Existing FormField */}
-            <FormField
-              control={form.control}
-              name="titol"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Títol</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Títol del llibre" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {labels.map((label: string, index) => (
+              <FormField
+                key={index}
+                name={label}
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-slate-300">
+                      {names[index]}
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="bg-slate-700 text-slate-100 border-slate-600 placeholder:text-slate-400 placeholder"
+                        placeholder={names[index]}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ))}
 
-            {/* New FormField - Autor */}
-            <FormField
-              control={form.control}
-              name="autor"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Autor</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Autor del llibre" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* New FormField - Prestatge */}
-            <FormField
-              control={form.control}
-              name="prestatge"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Prestatge</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Prestatge del llibre" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* New FormField - Posició */}
-            <FormField
-              control={form.control}
-              name="posicio"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Posició</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Posició del llibre" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* New FormField - Habitació */}
-            <FormField
-              control={form.control}
-              name="habitacio"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Habitació</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Habitació del llibre" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* New FormField - Tipus */}
-            <FormField
-              control={form.control}
-              name="tipus"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipus</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Tipus del llibre" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* New FormField - Editorial */}
-            <FormField
-              control={form.control}
-              name="editorial"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Editorial</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Editorial del llibre" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* New FormField - Idioma */}
-            <FormField
-              control={form.control}
-              name="idioma"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Idioma</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Idioma del llibre" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* New FormField - Notes */}
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      className="resize-none bg-white"
-                      placeholder="Notes del llibre"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                  <FormDescription className="text-sm text-gray-900">
-                    Aquest camp no es obligatori.
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
             <div className="flex flex-row justify-between items-center">
               {id && (
-                <Button variant={"outline"} onClick={() => deleteMutation()}>
+                <Button
+                  variant={"outline"}
+                  className="bg-red-700 hover:bg-red-800"
+                  onClick={() => deleteMutation()}
+                >
                   Elimina
                 </Button>
               )}
-              <Button type="submit" variant={"outline"}>
+              <Button
+                type="submit"
+                variant={"outline"}
+                className={`bg-slate-900 text-slate-300 ${
+                  !id && "rounded-lg w-full"
+                }`}
+              >
                 Guarda
               </Button>
             </div>

@@ -1,11 +1,16 @@
 import { Suspense } from "react";
-import { BarLoader } from "react-spinners";
 import { BookForm } from "./bookForm";
+import Loader from "@/components/ui/loader";
+import { cookies } from "next/headers";
 
 const EntryPage = () => {
+  const getToken = async () => {
+    "use server";
+    return cookies().get("token")?.value;
+  };
   return (
-    <Suspense fallback={<BarLoader color="#000" />}>
-      <BookForm />
+    <Suspense fallback={<Loader />}>
+      <BookForm getToken={getToken} />
     </Suspense>
   );
 };

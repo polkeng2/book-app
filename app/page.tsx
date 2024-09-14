@@ -1,28 +1,30 @@
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import Link from "next/link";
-import { Suspense } from "react";
+import { DataTable } from "./library/tableComponents/book-table";
+import { Button } from "@/components/ui/button";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { LogOut } from "lucide-react";
 
-export default function Home() {
+export default function Library() {
+  const deleteToken = async () => {
+    "use server";
+    cookies().delete("token");
+    redirect("/login");
+  };
   return (
-    <div className="h-[100dvh] flex flex-col justify-center items-center">
-      <Image
-        className="absolute top-0 left-0 z-[-1]"
-        src="/library-bg.jpg"
-        alt="Imatge de biblioteca"
-        fill
-        priority
-      />
-
-      <div className="flex flex-col justify-center items-center text-slate-100 font-medium drop-shadow-2xl animate-fade-in animate-delay-800 animate-duration-800">
-        <h1 className="text-4xl lg:text-6xl text-bold pointer-events-none">
-          Els teus llibres. Ara online.
-        </h1>
-        <Link href={"/library"}>
-          <Button className="mt-10 text-xl lg:text-3xl transition hover:scale-110">
-            {"Ves a la biblioteca ->"}
+    <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
+      <form action={deleteToken} className="">
+        <header className="flex justify-between items-center p-4 bg-gray-800 border-b-2 border-slate-50 shadow-md">
+          <h1 className="text-2xl font-bold text-slate-100 pl-5">
+            La meva biblioteca
+          </h1>
+          <Button className="" variant="destructive" type="submit">
+            <LogOut className="mr-2 h-4 w-4" /> Tancar la sessió
           </Button>
-        </Link>
+        </header>
+      </form>
+      <div className="flex-1 grid place-items-center">
+        <DataTable />
       </div>
     </div>
   );
