@@ -5,7 +5,6 @@ import React from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
 import {
-  ColumnDef,
   ColumnFiltersState,
   Row,
   SortingState,
@@ -34,29 +33,26 @@ import { useBookData } from "@/app/hooks/useBookData";
 import Loader from "@/components/ui/loader";
 import { X } from "lucide-react";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-}
-
-const colInfo = [
-  { id: "titol", name: "Títol" },
-  { id: "autor", name: "Autor" },
-  { id: "prestatge", name: "Prestatge" },
-  { id: "posicio", name: "Posició" },
-  { id: "habitacio", name: "Habitació" },
-  { id: "tipus", name: "Tipus" },
-  { id: "editorial", name: "Editorial" },
-  { id: "idioma", name: "Idioma" },
-  { id: "notes", name: "Notes" },
+const columnConfig = [
+  { id: "titol", name: "Títol", width: "400px" },
+  { id: "autor", name: "Autor", width: "400px" },
+  { id: "prestatge", name: "Prestatge", width: "40px" },
+  { id: "posicio", name: "Posició", width: "40px" },
+  { id: "habitacio", name: "Habitació", width: "100px" },
+  { id: "tipus", name: "Tipus", width: "100px" },
+  { id: "editorial", name: "Editorial", width: "180px" },
+  { id: "idioma", name: "Idioma", width: "150px" },
+  { id: "notes", name: "Notes", width: "200px" },
+  { id: "edit", name: "", width: "20px" },
 ];
 
-export function DataTable<TData, TValue>() {
+export function DataTable() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
-  const { data, isLoading } = useBookData();
+  const { data, isLoading, isError } = useBookData();
   const table = useReactTable({
     data,
     columns,
@@ -83,19 +79,21 @@ export function DataTable<TData, TValue>() {
   function tableFilter() {
     return (
       <div className="flex flex-row gap-6 md:justify-between max-w-[100%] items-stretch my-4 py-4 flex-1 overflow-auto bg-slate-800  px-4 rounded-sm">
-        {colInfo.map((column, key) => (
-          <SearchParam
-            key={key}
-            info={column}
-            getFilterValue={getColFilterValue}
-            setFilterValue={setColFilterValue}
-          />
-        ))}
+        {columnConfig
+          .filter((c) => c.name)
+          .map((column) => (
+            <SearchParam
+              key={column.id}
+              info={column}
+              getFilterValue={getColFilterValue}
+              setFilterValue={setColFilterValue}
+            />
+          ))}
       </div>
     );
   }
 
-  let rowValues: any = [];
+  let rowValues: Row<Book>[] = [];
   if (!isLoading) {
     const { rows } = table.getRowModel();
     rowValues = rows;
@@ -113,6 +111,12 @@ export function DataTable<TData, TValue>() {
   const virtualItems = virtualizer.getVirtualItems();
 
   if (isLoading) return <Loader />;
+  if (isError)
+    return (
+      <div className="text-slate-300 text-center py-20">
+        No s&apos;han pogut carregar els llibres. Refresca la pàgina.
+      </div>
+    );
 
   return (
     <div className="w-[80%]">
@@ -132,35 +136,33 @@ export function DataTable<TData, TValue>() {
       </div>
       <div className="flex justify-between">{tableFilter()}</div>
       <div
-        className="rounded-md border-b border-slate-200 h-[60vh] overflow-auto bg-slate-800"
+        className="h-[60vh] overflow-auto bg-slate-800 rounded-md border-b border-slate-200"
         ref={parentRef}
       >
-        <Table className="">
+        <Table className="table-fixed">
+          <colgroup>
+            {columnConfig.map((col) => (
+              <col key={col.id} style={{ width: col.width }} />
+            ))}
+          </colgroup>
           <TableHeader className="sticky top-0 z-[9999]">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="">
+              <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead
                       key={header.id}
-                      className={` bg-slate-800 text-slate-100
-                        ${header.id === "titol" && " w-[400px]"} 
-                        ${header.id === "autor" && "w-[400px]"} 
-                        ${header.id === "prestatge" && "w-[40px]"} 
-                        ${header.id === "posicio" && "w-[40px]"} 
-                        ${header.id === "habitacio" && "w-[100px]"} 
-                        ${header.id === "tipus" && "w-[100px]"} 
-                        ${header.id === "editorial" && "w-[180px]"} 
-                        ${header.id === "idioma" && "w-[150px]"} 
-                        ${header.id === "notes" && "w-[200px]"} 
-                        ${header.id === "edit" && "w-[20px]"}
-                      `}
+                      className={`bg-slate-800 text-slate-100 ${
+                        header.id === "prestatge" || header.id === "posicio"
+                          ? "text-center"
+                          : ""
+                      }`}
                     >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -170,15 +172,13 @@ export function DataTable<TData, TValue>() {
           </TableHeader>
           <TableBody>
             {virtualItems.map((virtualRow, index) => {
-              const row = rowValues[virtualRow.index] as Row<TData>;
+              const row = rowValues[virtualRow.index] as Row<Book>;
               return (
                 <TableRow
                   key={row.id}
-                  //data-state={row.getIsSelected() && "selected"}
-                  className={`text-slate-300 hover:bg-slate-700 border-b border-b-slate-200"
-                  }`}
+                  className="text-slate-300 hover:bg-slate-700"
                   style={{
-                    //height: `${virtualRow.size}px`,
+                    height: `${virtualRow.size}px`,
                     transform: `translateY(${
                       virtualRow.start - index * virtualRow.size
                     }px)`,
@@ -188,27 +188,22 @@ export function DataTable<TData, TValue>() {
                     return (
                       <TableCell
                         key={cell.id}
-                        className={`hover:font-medium 
-                        ${cell.column.id === "titol" && " w-[400px]"} 
-                        ${cell.column.id === "autor" && "w-[400px]"} 
-                        ${cell.column.id === "prestatge" && "w-[40px]"} 
-                        ${cell.column.id === "posicio" && "w-[40px]"} 
-                        ${cell.column.id === "habitacio" && "w-[100px]"} 
-                        ${cell.column.id === "tipus" && "w-[100px]"} 
-                        ${cell.column.id === "editorial" && "w-[180px]"} 
-                        ${cell.column.id === "idioma" && "w-[150px]"} 
-                        ${cell.column.id === "notes" && "w-[200px]"} 
-                        ${cell.column.id === "edit" && "w-[20px]"}`}
+                        className={`hover:font-medium ${
+                          cell.column.id === "prestatge" ||
+                          cell.column.id === "posicio"
+                            ? "text-center"
+                            : ""
+                        }`}
                         onClick={() => {
                           setColFilterValue(
                             cell.column.id,
-                            cell.getValue() as string
+                            cell.getValue() as string,
                           );
                         }}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     );

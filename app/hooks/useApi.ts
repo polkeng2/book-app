@@ -14,15 +14,15 @@ interface Book {
 }
 
 function useApi() {
-  const API = "http://localhost:8000";
+  const API =
+    process.env.NEXT_PUBLIC_API_URL || "https://llibres-api.driescode.dev";
 
   const getAllBooks = async () => {
     const response = await axios.get(`${API}/books`);
     return response.data;
   };
 
-  const createBook = async (book: any, cookie: String | undefined) => {
-    console.log("book: ", book);
+  const createBook = async (book: Book, cookie: string | undefined) => {
     const response = await axios.post(`${API}/books`, book, {
       headers: {
         Authorization: `${cookie}`,
@@ -34,9 +34,8 @@ function useApi() {
   const editBook = async (
     id: string,
     book: Book,
-    cookie: String | undefined
+    cookie: string | undefined
   ) => {
-    console.log("Edited book: ", book);
     const response = await axios.put(`${API}/books/${id}`, book, {
       headers: {
         Authorization: `${cookie}`,
@@ -45,7 +44,7 @@ function useApi() {
     return response.data;
   };
 
-  const deleteBook = async (id: number, cookie: String | undefined) => {
+  const deleteBook = async (id: number, cookie: string | undefined) => {
     const response = await axios.delete(`${API}/books/${id}`, {
       headers: {
         Authorization: `${cookie}`,

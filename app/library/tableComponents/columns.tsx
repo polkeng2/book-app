@@ -1,7 +1,24 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import Link from "next/link";
+
+const accentInsensitiveFilter = <TData extends object>(
+  row: Row<TData>,
+  columnId: string,
+  filterValue: unknown,
+): boolean => {
+  const value = row.getValue(columnId) as string;
+  if (value == null || filterValue == null) return false;
+  const norm = (s: string) =>
+    s
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/l·l/g, "ll")
+      .replace(/·/g, "");
+  return norm(value).includes(norm(filterValue as string));
+};
 
 export type Book = {
   id: number;
@@ -31,6 +48,7 @@ export const columns: ColumnDef<Book>[] = [
       );
     },
     accessorKey: "titol",
+    filterFn: accentInsensitiveFilter,
     cell: (info) => info.getValue(),
   },
   {
@@ -45,6 +63,7 @@ export const columns: ColumnDef<Book>[] = [
       );
     },
     accessorKey: "autor",
+    filterFn: accentInsensitiveFilter,
     cell: (info) => info.getValue(),
   },
   {
@@ -87,6 +106,7 @@ export const columns: ColumnDef<Book>[] = [
       );
     },
     accessorKey: "habitacio",
+    filterFn: accentInsensitiveFilter,
     cell: (info) => info.getValue(),
   },
   {
@@ -101,6 +121,7 @@ export const columns: ColumnDef<Book>[] = [
       );
     },
     accessorKey: "tipus",
+    filterFn: accentInsensitiveFilter,
     cell: (info) => info.getValue(),
   },
   {
@@ -115,6 +136,7 @@ export const columns: ColumnDef<Book>[] = [
       );
     },
     accessorKey: "editorial",
+    filterFn: accentInsensitiveFilter,
     cell: (info) => info.getValue(),
   },
   {
@@ -129,6 +151,7 @@ export const columns: ColumnDef<Book>[] = [
       );
     },
     accessorKey: "idioma",
+    filterFn: accentInsensitiveFilter,
     cell: (info) => info.getValue(),
   },
   {
@@ -143,6 +166,7 @@ export const columns: ColumnDef<Book>[] = [
       );
     },
     accessorKey: "notes",
+    filterFn: accentInsensitiveFilter,
     cell: (info) => info.getValue(),
   },
   {

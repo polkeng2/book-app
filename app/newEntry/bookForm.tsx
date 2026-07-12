@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -13,12 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -29,6 +23,75 @@ import { Book } from "../library/tableComponents/columns";
 import { useBookData } from "../hooks/useBookData";
 import { ArrowLeft } from "lucide-react";
 
+const bookSchema = z.object({
+  id: z.number(),
+  titol: z
+    .string({
+      required_error: "El camp és obligatori",
+      invalid_type_error: "El camp ha de ser un text.",
+    })
+    .max(500, { message: "El camp no pot excedit els 500 caràcters." })
+    .min(1, { message: "El camp no pot estar buit." }),
+  autor: z
+    .string({
+      required_error: "El camp és obligatori",
+      invalid_type_error: "El camp ha de ser un text.",
+    })
+    .max(50, { message: "El camp no pot excedit els 50 caràcters." })
+    .min(1, { message: "El camp no pot estar buit." }),
+  prestatge: z
+    .string({
+      required_error: "El camp és obligatori",
+    })
+    .regex(new RegExp("^[0-9]*$"), {
+      message: "El camp només pot contenir números",
+    })
+    .max(2, { message: "El número es massa llarg." })
+    .min(1, { message: "El camp no pot estar buit." }),
+  posicio: z
+    .string({
+      required_error: "El camp és obligatori",
+    })
+    .regex(new RegExp("^[0-9]*$"), {
+      message: "El camp només pot contenir números",
+    })
+    .max(2, { message: "El número es massa llarg." })
+    .min(1, { message: "El camp no pot estar buit." }),
+  habitacio: z
+    .string({
+      required_error: "El camp és obligatori",
+      invalid_type_error: "El camp ha de ser un text.",
+    })
+    .max(50, { message: "El camp no pot excedit els 50 caràcters." })
+    .min(1, { message: "El camp no pot estar buit." }),
+  tipus: z
+    .string({
+      required_error: "El camp és obligatori",
+      invalid_type_error: "El camp ha de ser un text.",
+    })
+    .max(50, { message: "El camp no pot excedit els 50 caràcters." })
+    .min(1, { message: "El camp no pot estar buit." }),
+  editorial: z
+    .string({
+      required_error: "El camp és obligatori",
+      invalid_type_error: "El camp ha de ser un text.",
+    })
+    .max(50, { message: "El camp no pot excedit els 50 caràcters." })
+    .min(1, { message: "El camp no pot estar buit." }),
+  idioma: z
+    .string({
+      required_error: "El camp és obligatori",
+      invalid_type_error: "El camp ha de ser un text.",
+    })
+    .max(50, { message: "El camp no pot excedit els 50 caràcters." })
+    .min(1, { message: "El camp no pot estar buit." }),
+  notes: z
+    .string()
+    .max(1000, { message: "El camp no pot excedir els 1000 caràcters." }),
+});
+
+type BookFormValues = z.infer<typeof bookSchema>;
+
 export const BookForm = ({
   getToken,
 }: {
@@ -37,72 +100,6 @@ export const BookForm = ({
   const queryClient = useQueryClient();
   const router = useRouter();
   const { toast } = useToast();
-  const bookSchema = z.object({
-    id: z.number(),
-    titol: z
-      .string({
-        required_error: "El camp és obligatori",
-        invalid_type_error: "El camp ha de ser un text.",
-      })
-      .max(100, { message: "El camp no pot excedit els 50 caràcters." })
-      .min(1, { message: "El camp no pot estar buit." }),
-    autor: z
-      .string({
-        required_error: "El camp és obligatori",
-        invalid_type_error: "El camp ha de ser un text.",
-      })
-      .max(50, { message: "El camp no pot excedit els 50 caràcters." })
-      .min(1, { message: "El camp no pot estar buit." }),
-    prestatge: z
-      .string({
-        required_error: "El camp és obligatori",
-      })
-      .regex(new RegExp("^[0-9]*$"), {
-        message: "El camp només pot contenir números",
-      })
-      .max(2, { message: "El número es massa llarg." })
-      .min(1, { message: "El camp no pot estar buit." }),
-    posicio: z
-      .string({
-        required_error: "El camp és obligatori",
-      })
-      .regex(new RegExp("^[0-9]*$"), {
-        message: "El camp només pot contenir números",
-      })
-      .max(2, { message: "El número es massa llarg." })
-      .min(1, { message: "El camp no pot estar buit." }),
-    habitacio: z
-      .string({
-        required_error: "El camp és obligatori",
-        invalid_type_error: "El camp ha de ser un text.",
-      })
-      .max(50, { message: "El camp no pot excedit els 20 caràcters." })
-      .min(1, { message: "El camp no pot estar buit." }),
-    tipus: z
-      .string({
-        required_error: "El camp és obligatori",
-        invalid_type_error: "El camp ha de ser un text.",
-      })
-      .max(50, { message: "El camp no pot excedit els 50 caràcters." })
-      .min(1, { message: "El camp no pot estar buit." }),
-    editorial: z
-      .string({
-        required_error: "El camp és obligatori",
-        invalid_type_error: "El camp ha de ser un text.",
-      })
-      .max(50, { message: "El camp no pot excedit els 50 caràcters." })
-      .min(1, { message: "El camp no pot estar buit." }),
-    idioma: z
-      .string({
-        required_error: "El camp és obligatori",
-        invalid_type_error: "El camp ha de ser un text.",
-      })
-      .max(50, { message: "El camp no pot excedit els 50 caràcters." })
-      .min(1, { message: "El camp no pot estar buit." }),
-    notes: z
-      .string()
-      .max(100, { message: "El camp no pot excedir els 100 caràcters." }),
-  });
   const { createBook, editBook, deleteBook } = useApi();
   const { data: llibres } = useBookData();
   const form = useForm<z.infer<typeof bookSchema>>({
@@ -123,7 +120,7 @@ export const BookForm = ({
   });
 
   const id = useSearchParams().get("id");
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async (newBook: Book) => {
       const token = await getToken();
       if (id) return await editBook(id, newBook, token);
@@ -142,12 +139,11 @@ export const BookForm = ({
         title: "Els canvis no s'han pogut desar",
         description: "Hi ha hagut un error inesperat.",
       });
-      console.log(error);
     },
   });
 
   //delete mutation
-  const { mutate: deleteMutation } = useMutation({
+  const { mutate: deleteMutation, isPending: isDeleting } = useMutation({
     mutationFn: async () => {
       if (!id) return;
       const token = await getToken();
@@ -168,30 +164,30 @@ export const BookForm = ({
         title: "El llibre no s'ha pogut eliminar correctament.",
         description: "Hi ha hagut un error inesperat.",
       });
-      throw error;
     },
   });
 
-  async function onSubmit(values: any) {
+  function onSubmit(values: BookFormValues) {
     mutate(values);
   }
 
   useEffect(() => {
     if (id) {
       const book = llibres?.find((book: Book) => book.id === parseInt(id));
-      form.setValue("titol", book?.titol);
-      form.setValue("autor", book?.autor);
-      form.setValue("prestatge", book?.prestatge);
-      form.setValue("posicio", book?.posicio);
-      form.setValue("habitacio", book?.habitacio);
-      form.setValue("tipus", book?.tipus);
-      form.setValue("editorial", book?.editorial);
-      form.setValue("idioma", book?.idioma);
-      form.setValue("notes", book?.notes);
+      if (!book) return;
+      form.setValue("titol", book.titol);
+      form.setValue("autor", book.autor);
+      form.setValue("prestatge", book.prestatge);
+      form.setValue("posicio", book.posicio);
+      form.setValue("habitacio", book.habitacio);
+      form.setValue("tipus", book.tipus);
+      form.setValue("editorial", book.editorial);
+      form.setValue("idioma", book.idioma);
+      form.setValue("notes", book.notes);
     }
-  }, [id]);
+  }, [id, llibres, form]);
 
-  const labels: string[] = [
+  const labels: (keyof BookFormValues)[] = [
     "titol",
     "autor",
     "prestatge",
@@ -203,7 +199,7 @@ export const BookForm = ({
     "notes",
   ];
 
-  const names: string[] = [
+  const names = [
     "Títol",
     "Autor",
     "Prestatge",
@@ -234,9 +230,9 @@ export const BookForm = ({
             className="space-y-8 w-[80%]"
             //TODO: Change width
           >
-            {labels.map((label: string, index) => (
+            {labels.map((label, index) => (
               <FormField
-                key={index}
+                key={label}
                 name={label}
                 control={form.control}
                 render={({ field }) => (
@@ -260,11 +256,21 @@ export const BookForm = ({
             <div className="flex flex-row justify-between items-center">
               {id && (
                 <Button
+                  type="button"
                   variant={"outline"}
                   className="bg-red-700 hover:bg-red-800"
-                  onClick={() => deleteMutation()}
+                  disabled={isDeleting}
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        "Estàs segur que vols eliminar aquest llibre?",
+                      )
+                    ) {
+                      deleteMutation();
+                    }
+                  }}
                 >
-                  Elimina
+                  {isDeleting ? "Eliminant..." : "Elimina"}
                 </Button>
               )}
               <Button
@@ -273,8 +279,9 @@ export const BookForm = ({
                 className={`bg-slate-900 text-slate-300 ${
                   !id && "rounded-lg w-full"
                 }`}
+                disabled={isPending}
               >
-                Guarda
+                {isPending ? "Guardant..." : "Guarda"}
               </Button>
             </div>
           </form>

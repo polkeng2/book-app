@@ -16,26 +16,25 @@ import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import useApi from "../hooks/useApi";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  email: z.string().min(2).max(50),
+  email: z.string().email("Introdueix un correu electrònic vàlid").max(50),
   password: z.string().min(8).max(50),
 });
 
 export default function LoginForm({
   setToken,
 }: {
-  setToken: (token: string) => void;
+  setToken: (token: string) => Promise<void>;
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,26 +47,23 @@ export default function LoginForm({
   const { getAuth } = useApi();
 
   const router = useRouter();
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
       return getAuth(values.email, values.password);
     },
-    onSuccess: (value: string) => {
-      //const cookieStore = cookies();
-      //cookieStore.set("auth", value);
-      setToken(value);
+    onSuccess: async (value: string) => {
+      await setToken(value);
       toast({
         title: "Has iniciat sessió correctament.",
       });
-      router.push("/", undefined);
+      router.push("/");
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         variant: "destructive",
         title: "Error en el inici de sessió",
         description: "Usuari o contrassenya equivocada.",
       });
-      console.log(error);
     },
   });
 
@@ -115,7 +111,7 @@ export default function LoginForm({
               />
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={isPending}>
                 Sign in
               </Button>
             </CardFooter>
